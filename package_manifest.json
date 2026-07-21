@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "conditions": [
+    "presentation",
+    "tabletop",
+    "casual"
+  ],
+  "joint_order": [
+    "left_joint1",
+    "left_joint2",
+    "left_joint3",
+    "left_joint4",
+    "left_joint5",
+    "left_joint6",
+    "left_joint7",
+    "right_joint1",
+    "right_joint2",
+    "right_joint3",
+    "right_joint4",
+    "right_joint5",
+    "right_joint6",
+    "right_joint7"
+  ],
+  "command_rate_hz": 100.0,
+  "sets": {
+    "01_showcase": {
+      "role": "approved paper-figure showcase; play this set first",
+      "selection": "best visual sample selected separately for each condition",
+      "claim_boundary": "best-case demonstration, not strict code-only causal evidence",
+      "audio_reference": "audio/reference_5s/01_showcase.wav",
+      "audio_safe_sync": "audio/safe_sync/01_showcase.wav",
+      "safe_sync_duration_s": 5.84,
+      "speed": {
+        "presentation": 0.9077773461525339,
+        "tabletop": 0.9859431147403587,
+        "casual": 0.9997774762957928
+      }
+    },
+    "02_neerja_forward": {
+      "role": "Neerja voice requested for direct robot testing",
+      "selection": "one generated trio; forward shoulder and palm-aware W1 retargeting",
+      "claim_boundary": "same waveform and generated trio across the three conditions",
+      "audio_reference": "audio/reference_5s/02_neerja_forward.wav",
+      "audio_safe_sync": "audio/safe_sync/02_neerja_forward.wav",
+      "safe_sync_duration_s": 6.1,
+      "speed": {
+        "presentation": 0.881540056374907,
+        "tabletop": 0.9983677817901317,
+        "casual": 0.8584342796041949
+      }
+    },
+    "03_sonia": {
+      "role": "highest-scoring whole-trio voice search result",
+      "selection": "British Sonia, seed 0; selected as one complete trio, not per condition",
+      "claim_boundary": "same waveform and seed across the three conditions",
+      "audio_reference": "audio/reference_5s/03_sonia.wav",
+      "audio_safe_sync": "audio/safe_sync/03_sonia.wav",
+      "safe_sync_duration_s": 6.01,
+      "speed": {
+        "presentation": 0.8970558931912351,
+        "tabletop": 0.8909878376574363,
+        "casual": 0.9988950523788698
+      }
+    },
+    "04_ava": {
+      "role": "second-highest-scoring whole-trio voice search result",
+      "selection": "US Ava, seed 0; selected as one complete trio, not per condition",
+      "claim_boundary": "same waveform and seed across the three conditions",
+      "audio_reference": "audio/reference_5s/04_ava.wav",
+      "audio_safe_sync": "audio/safe_sync/04_ava.wav",
+      "safe_sync_duration_s": 5.65,
+      "speed": {
+        "presentation": 0.9995756842093446,
+        "tabletop": 0.9856902611773652,
+        "casual": 0.9921083483380735
+      }
+    },
+    "05_neerja_expressive": {
+      "role": "alternate Neerja delivery from the whole-trio search",
+      "selection": "Neerja expressive, seed 0; selected as one complete trio, not per condition",
+      "claim_boundary": "same waveform and seed across the three conditions",
+      "audio_reference": "audio/reference_5s/05_neerja_expressive.wav",
+      "audio_safe_sync": "audio/safe_sync/05_neerja_expressive.wav",
+      "safe_sync_duration_s": 5.98,
+      "speed": {
+        "presentation": 0.9638434075972276,
+        "tabletop": 0.9984683991280986,
+        "casual": 0.884842975661984
+      }
+    }
+  }
+}

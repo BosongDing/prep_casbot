@@ -1,0 +1,21 @@
+{
+  "method": "MuJoCo frame-by-frame self-collision sweep using the CASBOT W1 model with torso proxy collision geometry and a 0.02 m near-miss query margin",
+  "result_meaning": "Every packaged NPZ completed prepare_traj.py with no penetrating contact. This record is provenance; standalone validation cannot repeat MuJoCo geometry checks because the vendor mesh bundle is not copied into this repository.",
+  "motions": {
+    "motions/01_showcase/casual.npz": "pass_no_self_penetration",
+    "motions/01_showcase/presentation.npz": "pass_no_self_penetration",
+    "motions/01_showcase/tabletop.npz": "pass_no_self_penetration",
+    "motions/02_neerja_forward/casual.npz": "pass_no_self_penetration",
+    "motions/02_neerja_forward/presentation.npz": "pass_no_self_penetration",
+    "motions/02_neerja_forward/tabletop.npz": "pass_no_self_penetration",
+    "motions/03_sonia/casual.npz": "pass_no_self_penetration",
+    "motions/03_sonia/presentation.npz": "pass_no_self_penetration",
+    "motions/03_sonia/tabletop.npz": "pass_no_self_penetration",
+    "motions/04_ava/casual.npz": "pass_no_self_penetration",
+    "motions/04_ava/presentation.npz": "pass_no_self_penetration",
+    "motions/04_ava/tabletop.npz": "pass_no_self_penetration",
+    "motions/05_neerja_expressive/casual.npz": "pass_no_self_penetration",
+    "motions/05_neerja_expressive/presentation.npz": "pass_no_self_penetration",
+    "motions/05_neerja_expressive/tabletop.npz": "pass_no_self_penetration"
+  }
+}

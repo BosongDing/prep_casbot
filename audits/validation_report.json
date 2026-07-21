@@ -1,0 +1,197 @@
+{
+  "files": {
+    "audio/reference_5s/01_showcase.wav": "812b7390cb3b519166fbba29aca05b3c564a2a8ebf64ead7cb4cec601e73c201",
+    "audio/reference_5s/02_neerja_forward.wav": "5224cfabcf502296424069b80736fd395f22de40fd22c210e450137c39f2657a",
+    "audio/reference_5s/03_sonia.wav": "8a460777b49976e4bede5e8d3c42afc243a31df91cf96e46e42634ce02c4ba87",
+    "audio/reference_5s/04_ava.wav": "18162f33cbfb99baef8a539284885b50a9d5a15c7a644c937d1458bf8fd53f6b",
+    "audio/reference_5s/05_neerja_expressive.wav": "ab209609c9ce8d5a4a93ca2b14ccf6bd143e0b7db6d4bc13b22d25c7cd824791",
+    "audio/safe_sync/01_showcase.wav": "0e5197ba8623d9387a083ac090cdf5adea41a8559d6f6d7347351c9facebd312",
+    "audio/safe_sync/02_neerja_forward.wav": "419b8a854a97483e2841a896d465c06ffc253bf8b94ef175a90ce1e616ab64f2",
+    "audio/safe_sync/03_sonia.wav": "cc4e4205772c1301b1cf0be6d08136165bf63c726aeb8e9506eef7d2f3fa166d",
+    "audio/safe_sync/04_ava.wav": "6268e8d81892ad85daf4430b4d867c0ab18de93159ce3ee66f0f726a780f46f3",
+    "audio/safe_sync/05_neerja_expressive.wav": "3f749f4bc8263213ebf235168667c3bd588cb722dfcc949a2614d8d3a743aedf",
+    "motions/01_showcase/casual.npz": "1fddb3e54d1a08f6e28d92f9a21650ee9cdc0ec95a80e31b0221bfecf4aafa7c",
+    "motions/01_showcase/presentation.npz": "23a0ecda9692b6498c43afe8acfb138d3dbf53b99de4815d572b2ecb1c08022f",
+    "motions/01_showcase/tabletop.npz": "1eebc1185472dc6d63fa16ca3cd258103d3a90c040e636c8f41588cdc5fb5f7d",
+    "motions/02_neerja_forward/casual.npz": "8df4611e2e40308cac4ebc8647bc36ad5dc5d4e0687b57b749ab71cf6495e5fc",
+    "motions/02_neerja_forward/presentation.npz": "061a1e697b482c0211b4db453e481c4d5e5fd9b14b09f2afba1ab2f895a151c8",
+    "motions/02_neerja_forward/tabletop.npz": "081c97412dad3f0e61293a202f80cd5acfb88e6f72dff6e5ea38521845b15d34",
+    "motions/03_sonia/casual.npz": "86b921969b93d3e6aa74da4c3b8bb5f98c430f6fa5b5be8c0c3318980c5928e7",
+    "motions/03_sonia/presentation.npz": "ef234b1dc8e63eb22bc7d62b1ced3d41ce5fb9079565417e3d33a52c87ee1fb8",
+    "motions/03_sonia/tabletop.npz": "96dcb99c248b7f2269f9c1eca70ed92950de338d66a616fa43f0c703637779ce",
+    "motions/04_ava/casual.npz": "edd29cb9105f5564b5b99c5e0085ef054560fdb46afcb50836a9140cfe3e3227",
+    "motions/04_ava/presentation.npz": "6f84e152d4c3ebe1c4d7a8fa592dd6b696c408822a9513273b7c6b1f2619b73a",
+    "motions/04_ava/tabletop.npz": "8a65227fb6329c05fea6ce4b36a7a0273e2ce7780109c9d2fed5281f69801d2c",
+    "motions/05_neerja_expressive/casual.npz": "0a8b9ef9a9527a785fe681e852a60249cc6e902f792bc21c68f6b3324f9b63f4",
+    "motions/05_neerja_expressive/presentation.npz": "8c8d242a48108523b854a9e3a30a960cc985a3d81c5ff16604ba46ec5a6412ec",
+    "motions/05_neerja_expressive/tabletop.npz": "0ee21d4971fb1da3edab70e832e76ad87c0ec3d58519766532687d4e04cd1a06",
+    "previews/exact_robot_paths/01_showcase/casual.mp4": "5f9589c440fcfe60edfdf43f0a7324ddc3f08a584e298decfe078db5dc905a08",
+    "previews/exact_robot_paths/01_showcase/presentation.mp4": "822c2274b4a5a6cddbaea900e5acb392a94c3db055e31984ea2682f7ca428f33",
+    "previews/exact_robot_paths/01_showcase/tabletop.mp4": "76b7ec24d082317e067824dd8117b90c9460dfd6476f8d89bcbe1f2b8f072e7f",
+    "previews/exact_robot_paths/02_neerja_forward/casual.mp4": "dce2b3494096a512e40d9a9c8452e7aeb95491f985f6600fe91e40517c00c44e",
+    "previews/exact_robot_paths/02_neerja_forward/presentation.mp4": "7017d8bad4c14b422fcaecddc9c01fe8c68e8d67deca4a4e008814f9101b928a",
+    "previews/exact_robot_paths/02_neerja_forward/tabletop.mp4": "6c1dbd7b66710b886f9e8c44edc09da4ba3b2c4bfddae7e520a4bb9c6a7f724b",
+    "previews/exact_robot_paths/03_sonia/casual.mp4": "40c54c5662869760e5206d7b901a23be9803344800b36f3d350afd9b80a9946b",
+    "previews/exact_robot_paths/03_sonia/presentation.mp4": "67003a44f200f4b9d2dfc225895991ff035111537eba017116e9be73da9e5c88",
+    "previews/exact_robot_paths/03_sonia/tabletop.mp4": "14c63d90f3e76c045c08a1e9e4da8499d5f626e3d0a22dbc1c58d515e22be21e",
+    "previews/exact_robot_paths/04_ava/casual.mp4": "7480682c04605227272c40e3d02e1d336c957314a05d84931e3d6ad042382ada",
+    "previews/exact_robot_paths/04_ava/presentation.mp4": "ed6ceff02144563f2c2fdeb9acf968cb158b4e9dc61e534b2553748cd2f90737",
+    "previews/exact_robot_paths/04_ava/tabletop.mp4": "563fdead28adef648bfd8fa782365b618dac272513aa44d8068617c912a810ba",
+    "previews/exact_robot_paths/05_neerja_expressive/casual.mp4": "9f9c33fef6040f28e3955288954102dbac85e06e50df61e3a73d2ee864ae265a",
+    "previews/exact_robot_paths/05_neerja_expressive/presentation.mp4": "1884b725a2e5722d28eaa7c55cad6e1cf111e3eb50b9e1580daf1bc6fe4e9d57",
+    "previews/exact_robot_paths/05_neerja_expressive/tabletop.mp4": "ae7e5bd930cc6b713122e6684fef7d5e3caccf4e051b5390640ead10d285e0fd",
+    "previews/original_timing/01_showcase_same_audio.mp4": "37e645f819d2a327566ddd41ed33adf7f889ecda7ac54c580a661555a84d1f2f",
+    "previews/original_timing/02_neerja_forward_same_audio.mp4": "da16a2742c9d91491d59c85ff922995b1d99e9c1dc32e3a692a6c11454804107",
+    "previews/original_timing/03_sonia_same_audio.mp4": "022ea4c56fcfa27c3a0b738c3ad7f37e27cca7d223c937824c7b918c544825aa",
+    "previews/original_timing/04_ava_same_audio.mp4": "5d86a25c4fa1c6d11748620b07c7ba3fe266ab6a88937ec21488197e19019a37",
+    "previews/original_timing/05_neerja_expressive_same_audio.mp4": "02a55d3d65bc16cda893eaa71e59ff0d4c0309ab52d49535c4d830a12ed89874"
+  },
+  "motion_count": 15,
+  "sets": {
+    "01_showcase": {
+      "casual": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 40.00002630034133,
+        "peak_velocity_rad_s": 1.400633722835676,
+        "safe_sync_duration_s": 5.84,
+        "safe_sync_speed": 0.9997774762957928,
+        "stored_duration_s": 5.83870046156743,
+        "stored_rate_hz": 42.13266318751348
+      },
+      "presentation": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 29.645780039403803,
+        "peak_velocity_rad_s": 1.500000684045962,
+        "safe_sync_duration_s": 5.84,
+        "safe_sync_speed": 0.9077773461525339,
+        "stored_duration_s": 5.301419701530798,
+        "stored_rate_hz": 46.402664540777046
+      },
+      "tabletop": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 16.257467362239883,
+        "peak_velocity_rad_s": 1.5000012002539247,
+        "safe_sync_duration_s": 5.84,
+        "safe_sync_speed": 0.9859431147403587,
+        "stored_duration_s": 5.757907790083695,
+        "stored_rate_hz": 42.723851956028675
+      }
+    },
+    "02_neerja_forward": {
+      "casual": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 39.00907801964348,
+        "peak_velocity_rad_s": 1.4999964875873122,
+        "safe_sync_duration_s": 6.1,
+        "safe_sync_speed": 0.8584342796041949,
+        "stored_duration_s": 5.236449105585589,
+        "stored_rate_hz": 46.97839987360862
+      },
+      "presentation": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 40.00020059967887,
+        "peak_velocity_rad_s": 1.477145942647324,
+        "safe_sync_duration_s": 6.1,
+        "safe_sync_speed": 0.881540056374907,
+        "stored_duration_s": 5.377394343886932,
+        "stored_rate_hz": 45.74706340435213
+      },
+      "tabletop": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 14.556269753438404,
+        "peak_velocity_rad_s": 1.4999999012352678,
+        "safe_sync_duration_s": 6.1,
+        "safe_sync_speed": 0.9983677817901317,
+        "stored_duration_s": 6.090043468919803,
+        "stored_rate_hz": 40.393800348954365
+      }
+    },
+    "03_sonia": {
+      "casual": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 25.6049131132345,
+        "peak_velocity_rad_s": 1.4999994175253002,
+        "safe_sync_duration_s": 6.01,
+        "safe_sync_speed": 0.9988950523788698,
+        "stored_duration_s": 6.003359264797007,
+        "stored_rate_hz": 40.977057868669476
+      },
+      "presentation": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 39.639659094633444,
+        "peak_velocity_rad_s": 1.4999996698266649,
+        "safe_sync_duration_s": 6.01,
+        "safe_sync_speed": 0.8970558931912351,
+        "stored_duration_s": 5.391305918079323,
+        "stored_rate_hz": 45.629018968309374
+      },
+      "tabletop": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 16.87744761317545,
+        "peak_velocity_rad_s": 1.5000004443174408,
+        "safe_sync_duration_s": 6.01,
+        "safe_sync_speed": 0.8909878376574363,
+        "stored_duration_s": 5.354836904321192,
+        "stored_rate_hz": 45.939774524502404
+      }
+    },
+    "04_ava": {
+      "casual": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 39.999838129016325,
+        "peak_velocity_rad_s": 1.4241459323219359,
+        "safe_sync_duration_s": 5.65,
+        "safe_sync_speed": 0.9921083483380735,
+        "stored_duration_s": 5.6054121681101154,
+        "stored_rate_hz": 43.88615727484314
+      },
+      "presentation": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 39.99973523548115,
+        "peak_velocity_rad_s": 1.3850944810700323,
+        "safe_sync_duration_s": 5.65,
+        "safe_sync_speed": 0.9995756842093446,
+        "stored_duration_s": 5.647602615782797,
+        "stored_rate_hz": 43.55830548568132
+      },
+      "tabletop": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 31.99545863061155,
+        "peak_velocity_rad_s": 1.5000010904191974,
+        "safe_sync_duration_s": 5.65,
+        "safe_sync_speed": 0.9856902611773652,
+        "stored_duration_s": 5.569149975652114,
+        "stored_rate_hz": 44.17191152608435
+      }
+    },
+    "05_neerja_expressive": {
+      "casual": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 39.99951817563945,
+        "peak_velocity_rad_s": 1.4781895957638953,
+        "safe_sync_duration_s": 5.98,
+        "safe_sync_speed": 0.884842975661984,
+        "stored_duration_s": 5.291360994458665,
+        "stored_rate_hz": 46.490874513687785
+      },
+      "presentation": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 34.36396067446425,
+        "peak_velocity_rad_s": 1.4999984169250635,
+        "safe_sync_duration_s": 5.98,
+        "safe_sync_speed": 0.9638434075972276,
+        "stored_duration_s": 5.763783577431422,
+        "stored_rate_hz": 42.68029787989154
+      },
+      "tabletop": {
+        "collision_audit": "pass_no_self_penetration",
+        "peak_acceleration_rad_s2": 24.263319260769904,
+        "peak_velocity_rad_s": 1.5000009342527978,
+        "safe_sync_duration_s": 5.98,
+        "safe_sync_speed": 0.9984683991280986,
+        "stored_duration_s": 5.97084102678603,
+        "stored_rate_hz": 41.20022604795698
+      }
+    }
+  }
+}
