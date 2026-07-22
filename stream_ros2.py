@@ -313,10 +313,13 @@ def main():
     pv = np.abs(np.diff(timeline, axis=0)).max() * rate
     interface = (f"{CONTROL_SERVICE} (Movej at {a.movej_vel*100:.1f}% speed)"
                  if a.nudge_via_movej else a.topic or "(no topic)")
+    abort_note = ("hardware E-stop stops Movej; Ctrl-C may only stop this client"
+                  if a.nudge_via_movej else
+                  "Ctrl-C stops publishing; hardware E-stop always wins")
     print(f"\nplan : {desc}\n"
           f"interface: {interface}\n"
           f"peak transparent velocity: {pv:.2f} rad/s\n"
-          f"abort: Ctrl-C anytime; hardware E-stop always wins")
+          f"abort: {abort_note}")
     if not a.nudge_via_movej and not a.topic:
         sys.exit("need --topic (find it with --discover) or --dry-run")
 
