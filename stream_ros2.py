@@ -33,6 +33,8 @@ FEEDBACK_TOPIC = "/motion_unified/get/joint_state"
 # Vendor dev doc V2.0 p.13: high-rate arm command channel, sensor_msgs/JointState,
 # supported 50-200 Hz, positions must be continuous frame to frame.
 COMMAND_TOPIC = "/motion_unified/control/Movej_transparent"
+LEFT_ARM_COMMAND_TOPIC = f"{COMMAND_TOPIC}/arm_0"
+RIGHT_ARM_COMMAND_TOPIC = f"{COMMAND_TOPIC}/arm_1"
 # Vendor dev doc V2.0 p.10-12, p.14: every one-shot request goes through this one
 # service, dispatched by the `func_name` field.
 CONTROL_SERVICE = "/motion_unified/control"
@@ -284,6 +286,18 @@ def main():
     q_cmd_traj[:, active_columns] = q_traj
     names = list(COMMAND_JOINTS)
 
+    if a.topic == LEFT_ARM_COMMAND_TOPIC:
+        assert a.arms == "left", (
+            f"{LEFT_ARM_COMMAND_TOPIC} requires --arms left")
+        publish_names = [f"left_joint{i}" for i in range(1, 8)]
+    elif a.topic == RIGHT_ARM_COMMAND_TOPIC:
+        assert a.arms == "right", (
+            f"{RIGHT_ARM_COMMAND_TOPIC} requires --arms right")
+        publish_names = [f"right_joint{i}" for i in range(1, 8)]
+    else:
+        publish_names = names
+    publish_columns = [command_index[n] for n in publish_names]
+
     # ---- build the full command timeline --------------------------------
     n_ramp = max(2, int(a.ramp * rate))
     if a.test_nudge:
@@ -318,6 +332,7 @@ def main():
                   "Ctrl-C stops publishing; hardware E-stop always wins")
     print(f"\nplan : {desc}\n"
           f"interface: {interface}\n"
+          f"published joints: {len(publish_names)}\n"
           f"peak transparent velocity: {pv:.2f} rad/s\n"
           f"abort: {abort_note}")
     if not a.nudge_via_movej and not a.topic:
@@ -428,8 +443,8 @@ def main():
             return
         msg = JointState()
         msg.header.stamp = node.get_clock().now().to_msg()
-        msg.name = names
-        msg.position = [float(v) for v in timeline[i]]
+        msg.name = publish_names
+        msg.position = [float(v) for v in timeline[i, publish_columns]]
         assert pub is not None
         pub.publish(msg)
         if i % int(5 * rate) == 0:
