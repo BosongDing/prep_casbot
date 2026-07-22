@@ -37,6 +37,16 @@ COMMAND_TOPIC = "/motion_unified/control/Movej_transparent"
 # service, dispatched by the `func_name` field.
 CONTROL_SERVICE = "/motion_unified/control"
 ALL_JOINTS = [f"{s}_joint{i}" for s in ("left", "right") for i in range(1, 8)]
+# The documented Movej_transparent example sends all 20 joints.  The W1 ignored
+# a seven-joint message on the combined topic during hardware bring-up, so keep
+# every non-active device at its measured position instead of relying on partial
+# JointState support.
+COMMAND_JOINTS = (
+    [f"left_joint{i}" for i in range(1, 8)] + ["left_gripper"] +
+    [f"right_joint{i}" for i in range(1, 8)] + ["right_gripper"] +
+    ["head_yaw_joint", "head_pitch_joint", "waist_pitch_joint",
+     "waist_updown_joint"]
+)
 
 
 def cubic(x):
@@ -213,7 +223,7 @@ def main():
 
     keep = [i for i, n in enumerate(names_all)
             if a.arms == "both" or n.startswith(a.arms)]
-    names = [names_all[i] for i in keep]
+    traj_names = [names_all[i] for i in keep]
     q_traj = resample_speed(q_all[:, keep], file_rate, a.command_rate, a.speed)
     rate = a.command_rate
     dt = 1.0 / rate
@@ -224,7 +234,7 @@ def main():
         print(f"source: {q_all.shape[0]} frames x {q_all.shape[1]} joints "
               f"@ {file_rate:.3f} Hz")
         print(f"plan  : {(q_traj.shape[0]-1)/rate:.3f}s at {a.speed:.2f}x, "
-              f"{len(names)} joints ({a.arms}), fixed {rate:.1f} Hz")
+              f"{len(traj_names)} joints ({a.arms}), fixed {rate:.1f} Hz")
         print(f"peak gesture velocity: {peak_velocity:.3f} rad/s")
         print("DRY RUN complete: ROS was not imported and no command was sent.")
         return
@@ -241,8 +251,8 @@ def main():
 
     def on_state(msg):
         pos = dict(zip(msg.name, msg.position))
-        if all(n in pos for n in names):
-            meas["q"] = np.array([pos[n] for n in names])
+        if all(n in pos for n in COMMAND_JOINTS):
+            meas["q"] = np.array([pos[n] for n in COMMAND_JOINTS])
             meas["t"] = time.monotonic()
 
     if a.enable_feedback:
@@ -256,28 +266,43 @@ def main():
         rclpy.spin_once(node, timeout_sec=0.2)
         if time.monotonic() - t0 > 10.0:
             sys.exit(f"no usable JointState on {a.state_topic} within 10 s "
-                     f"(need joints: {names}). Is the robot up? Try --discover.")
+                     f"(need joints: {COMMAND_JOINTS}). Is the robot up? Try --discover.")
     q_init = meas["q"].copy()      # also the pose we ramp back to at the end
-    print("current pose: " + "  ".join(f"{n}={v:+.2f}" for n, v in zip(names, q_init)))
+    command_index = {name: i for i, name in enumerate(COMMAND_JOINTS)}
+    print("current pose: " + "  ".join(
+        f"{n}={q_init[command_index[n]]:+.2f}" for n in traj_names))
+
+    # Build a documented 20-joint command.  Joints outside the selected arm(s)
+    # remain at the position measured immediately before this run.
+    q_cmd_traj = np.repeat(q_init[None, :], len(q_traj), axis=0)
+    active_columns = [command_index[n] for n in traj_names]
+    q_cmd_traj[:, active_columns] = q_traj
+    names = list(COMMAND_JOINTS)
 
     # ---- build the full command timeline --------------------------------
     n_ramp = max(2, int(a.ramp * rate))
     if a.test_nudge:
-        if a.test_nudge not in names:
-            sys.exit(f"--test-nudge joint must be one of {names}")
-        j = names.index(a.test_nudge)
+        if a.test_nudge not in traj_names:
+            sys.exit(f"--test-nudge joint must be one of {traj_names}")
+        assert a.track_tol < abs(a.nudge_delta), (
+            "--track-tol must be smaller than abs(--nudge-delta), otherwise a "
+            "stationary robot can pass the nudge test")
+        j = command_index[a.test_nudge]
         q_up = q_init.copy(); q_up[j] += a.nudge_delta
         n2 = max(2, int(2.0 * rate))
         timeline = np.vstack([ramp(q_init, q_up, n2),
                               np.repeat(q_up[None, :], int(1.0 * rate), 0),
-                              ramp(q_up, q_init, n2)])
+                              ramp(q_up, q_init, n2),
+                              np.repeat(q_init[None, :], int(1.0 * rate), 0)])
         desc = f"NUDGE {a.test_nudge} by {a.nudge_delta:+.3f} rad and back"
     else:
-        timeline = np.vstack([ramp(q_init, q_traj[0], n_ramp),
-                              q_traj,
-                              ramp(q_traj[-1], q_init, n_ramp)])
+        timeline = np.vstack([ramp(q_init, q_cmd_traj[0], n_ramp),
+                              q_cmd_traj,
+                              ramp(q_cmd_traj[-1], q_init, n_ramp),
+                              np.repeat(q_init[None, :], int(1.0 * rate), 0)])
         desc = (f"{(q_traj.shape[0]-1)/rate:.1f}s of gesture at {a.speed:.2f}x + "
-                f"{a.ramp:.0f}s ramps, {len(names)} joints ({a.arms}), "
+                f"{a.ramp:.0f}s ramps, {len(traj_names)} active joints ({a.arms}), "
+                f"{len(names)} commanded joints, "
                 f"fixed {rate:.1f} Hz")
 
     pv = np.abs(np.diff(timeline, axis=0)).max() * rate
@@ -287,6 +312,15 @@ def main():
           f"abort: Ctrl-C anytime; hardware E-stop always wins")
     if not a.topic:
         sys.exit("need --topic (find it with --discover) or --dry-run")
+
+    pub = node.create_publisher(JointState, a.topic, 10)
+    t_match = time.monotonic()
+    while pub.get_subscription_count() == 0:
+        rclpy.spin_once(node, timeout_sec=0.1)
+        assert time.monotonic() - t_match <= 3.0, (
+            f"no subscriber matched {a.topic} within 3 s")
+    print(f"command subscriber matched ({pub.get_subscription_count()})")
+
     if not a.yes:
         if input("type 'go' to start: ").strip() != "go":
             sys.exit("aborted by user")
@@ -298,25 +332,28 @@ def main():
     # ended up, while the tail still returns to the original pose.
     if a.movej_first and not a.test_nudge:
         print(f"[movej-first] Movej to first frame at {a.movej_vel*100:.0f}% speed ...")
-        detail = movej(node, names, q_traj[0], a.movej_vel)
+        detail = movej(node, names, q_cmd_traj[0], a.movej_vel)
         print(f"[movej-first] {detail}")
         t_settle = time.monotonic()
         while time.monotonic() - t_settle < 2.0:
             rclpy.spin_once(node, timeout_sec=0.1)
         q_now = meas["q"].copy()
-        err = np.abs(q_now - q_traj[0]).max()
+        err = np.abs(q_now - q_cmd_traj[0]).max()
         print(f"[movej-first] max error vs first frame: {err:.3f} rad")
         assert err <= a.track_tol, (
             f"[movej-first] did not arrive ({err:.2f} > {a.track_tol} rad)")
-        timeline = np.vstack([ramp(q_now, q_traj[0], max(2, int(1.0 * rate))),
-                              q_traj,
-                              ramp(q_traj[-1], q_init, n_ramp)])
-
-    pub = node.create_publisher(JointState, a.topic, 10)
+        timeline = np.vstack([
+            ramp(q_now, q_cmd_traj[0], max(2, int(1.0 * rate))),
+            q_cmd_traj,
+            ramp(q_cmd_traj[-1], q_init, n_ramp),
+            np.repeat(q_init[None, :], int(1.0 * rate), 0),
+        ])
 
     # ---- stream ----------------------------------------------------------
     i = 0
     aborted = [None]
+    observed_min = q_init.copy()
+    observed_max = q_init.copy()
 
     def tick():
         nonlocal i
@@ -349,9 +386,25 @@ def main():
     try:
         while rclpy.ok() and not aborted[0]:
             rclpy.spin_once(node, timeout_sec=0.2)
+            if meas["q"] is not None:
+                observed_min = np.minimum(observed_min, meas["q"])
+                observed_max = np.maximum(observed_max, meas["q"])
     except KeyboardInterrupt:
         print("\nCtrl-C: stopped publishing (servos hold last target).")
     if aborted[0] == "done":
+        final_err = np.abs(meas["q"] - q_init).max()
+        assert final_err <= a.track_tol, (
+            f"final pose error {final_err:.3f} rad > {a.track_tol:.3f} rad")
+        if a.test_nudge:
+            if a.nudge_delta > 0.0:
+                excursion = observed_max[j] - q_init[j]
+            else:
+                excursion = q_init[j] - observed_min[j]
+            assert excursion >= abs(a.nudge_delta) - a.track_tol, (
+                f"measured {a.test_nudge} excursion {excursion:.3f} rad is smaller "
+                f"than required {abs(a.nudge_delta) - a.track_tol:.3f} rad")
+            print(f"measured {a.test_nudge} excursion: {excursion:.3f} rad; "
+                  f"final-pose error: {final_err:.3f} rad")
         print("finished cleanly, robot returned to its initial pose.")
     elif aborted[0]:
         print(f"stopped: {aborted[0]}")
