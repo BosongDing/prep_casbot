@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "note": "Genuine continuous extensions; the five-second Figure 3 source is not looped and therefore has no long version.",
+  "sets": {
+    "02_neerja_forward": {
+      "audio_reference": "audio_long/reference/02_neerja_forward.wav",
+      "audio_reference_duration_s": 14.9333125,
+      "audio_safe_sync": "audio_long/safe_sync/02_neerja_forward.wav",
+      "safe_sync_duration_s": 18.04,
+      "amp": 1.0,
+      "speed": {
+        "presentation": 0.9997814961330721,
+        "tabletop": 0.9552742248423529,
+        "casual": 0.880246028011718
+      }
+    },
+    "03_sonia": {
+      "audio_reference": "audio_long/reference/03_sonia.wav",
+      "audio_reference_duration_s": 12.5333125,
+      "audio_safe_sync": "audio_long/safe_sync/03_sonia.wav",
+      "safe_sync_duration_s": 12.54,
+      "amp": 0.8,
+      "speed": {
+        "presentation": 0.9984051036682616,
+        "tabletop": 0.9984051036682616,
+        "casual": 0.9984051036682616
+      }
+    },
+    "04_ava": {
+      "audio_reference": "audio_long/reference/04_ava.wav",
+      "audio_reference_duration_s": 13.2666875,
+      "audio_safe_sync": "audio_long/safe_sync/04_ava.wav",
+      "safe_sync_duration_s": 15.23,
+      "amp": 1.0,
+      "speed": {
+        "presentation": 0.9994076022036081,
+        "tabletop": 0.9254258445284539,
+        "casual": 0.9919415219899231
+      }
+    },
+    "05_neerja_expressive": {
+      "audio_reference": "audio_long/reference/05_neerja_expressive.wav",
+      "audio_reference_duration_s": 14.5333125,
+      "audio_safe_sync": "audio_long/safe_sync/05_neerja_expressive.wav",
+      "safe_sync_duration_s": 17.88,
+      "amp": 1.0,
+      "speed": {
+        "presentation": 0.9995659418285956,
+        "tabletop": 0.8644959633351972,
+        "casual": 0.873376275890078
+      }
+    }
+  }
+}

@@ -78,6 +78,19 @@ If the approved Presentation path succeeds, repeat the ladder for Tabletop and
 Casual using their speeds in `MOTION_MANIFEST.md`. Then test
 `02_neerja_forward`. Sonia and Ava are backups, not prerequisites.
 
+Once one short Neerja path has passed at full audited speed, copy and play the
+long version. Do not use the long file for the first hardware command:
+
+```bash
+python3 stream_ros2.py \
+  --traj motions_long/02_neerja_forward/presentation.npz \
+  --speed 0.999781496133 --command-rate 100 --movej-first --enable-feedback
+```
+
+Its matching WAV is `audio_long/safe_sync/02_neerja_forward.wav`, and its
+safe-timing preview is
+`previews_long/safe_robot_timing/02_neerja_forward.mp4`.
+
 ## Audio only after motion is proven
 
 Use `audio/safe_sync/01_showcase.wav`, not the five-second reference file. Its

@@ -1,10 +1,15 @@
 # CASBOT W1: tomorrow-ready ICRA motion package
 
-This repository contains **15 robot-ready arm trajectories**: five same-audio
-trios, each with Presentation, Tabletop, and Casual behavior. Start with
+This repository contains **27 robot-ready arm trajectories**: five short
+same-audio trios and four genuine continuous long trios, each with Presentation,
+Tabletop, and Casual behavior. Start with
 `motions/01_showcase`; it is the three-motion paper-figure set already approved
 visually. `motions/02_neerja_forward` is the requested Neerja version. Sonia,
 Ava, and an alternate Neerja delivery are whole-trio voice-search results.
+
+After the short hardware ladder passes, use `motions_long`: the videos and
+robot paths now last **12.5–18.0 seconds**. The exact Figure 3 source contains
+only five seconds, so it remains short rather than being visibly looped.
 
 Read [TOMORROW_CHECKLIST.md](TOMORROW_CHECKLIST.md) at the robot. The absolute
 gate is Step 5 of [docs/OPERATING_GUIDE.md](docs/OPERATING_GUIDE.md): verify all
@@ -12,7 +17,8 @@ gate is Step 5 of [docs/OPERATING_GUIDE.md](docs/OPERATING_GUIDE.md): verify all
 
 ## What is ready
 
-- Every NPZ has exactly 247 poses for `left_joint1..7,right_joint1..7`.
+- Short NPZs have 247 poses; long NPZs have 627–747 continuous poses for
+  `left_joint1..7,right_joint1..7`.
 - Every NPZ passed joint-limit, 1.5 rad/s velocity, 40 rad/s² acceleration,
   and frame-by-frame MuJoCo self-penetration checks.
 - `stream_ros2.py` always publishes at 100 Hz; `--speed` changes path duration,
@@ -23,6 +29,8 @@ gate is Step 5 of [docs/OPERATING_GUIDE.md](docs/OPERATING_GUIDE.md): verify all
 - `audio/safe_sync` and `package_manifest.json` provide a common duration and a
   safe `--speed <= 1.0` for every condition in a trio.
 - `previews/exact_robot_paths` shows the exact prepared path stored in each NPZ.
+- `previews_long/safe_robot_timing` shows the long exact paths resampled to a
+  shared safe duration with the matching same-audio WAV.
 
 Run the complete offline test with:
 
@@ -54,6 +62,19 @@ W1 retargeting or required the visually rejected straight-up forearm pose.
 Nothing from that search was silently mixed into the deployable set; the full
 ranking and rejection evidence are in `audits/TRAINING_SET_SEARCH.md`.
 
+## Long versions
+
+| Directory | Safe shared duration | Note |
+|---|---:|---|
+| `motions_long/02_neerja_forward` | 18.04 s | Longest option; recommended first long take. |
+| `motions_long/03_sonia` | 12.54 s | All three use the same 0.8 amplitude safety transform. |
+| `motions_long/04_ava` | 15.23 s | Full continuous Ava excerpt. |
+| `motions_long/05_neerja_expressive` | 17.88 s | Full continuous expressive Neerja excerpt. |
+
+Use `long_manifest.json` for exact speeds. First watch
+`previews_long/safe_robot_timing/02_neerja_forward.mp4`; unlike the
+original-timing preview, it shows the timing the prepared robot files will use.
+
 ## Wrist and hand orientation
 
 The W1 has a long double-wrist/gripper chain. These files do not treat the
@@ -84,10 +105,13 @@ silent and show what the robot file contains.
 
 ```text
 motions/                 deployable NPZ files only
+motions_long/            continuous 12.5–18 s deployable NPZ files
 audio/reference_5s/      original five-second 16 kHz WAV per trio
 audio/safe_sync/         safety-matched shared 16 kHz WAV per trio
+audio_long/              reference and safe-sync WAVs for long trios
 previews/original_timing three-panel videos with the same audio
 previews/exact_robot_paths/ exact prepared trajectory previews
+previews_long/           original, exact, and safe robot timing videos
 audits/                  collision provenance, metrics, hashes, voice ranking
 docs/                    full operating/background/vendor documentation
 stream_ros2.py           laptop dry-run + ROS2 hardware streamer
