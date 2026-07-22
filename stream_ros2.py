@@ -185,6 +185,9 @@ def main():
                     help="joint name: move ONLY this joint by --nudge-delta and back "
                          "(minimal command-interface test)")
     ap.add_argument("--nudge-delta", type=float, default=0.05)
+    ap.add_argument("--nudge-via-movej", action="store_true",
+                    help="perform --test-nudge with the documented low-speed Movej "
+                         "service instead of the transparent topic")
     ap.add_argument("--yes", action="store_true", help="skip the confirmation prompt")
     a = ap.parse_args()
 
@@ -220,6 +223,8 @@ def main():
     assert 0.0 < a.speed <= 1.0, "robot playback --speed must be in (0, 1]"
     assert 50.0 <= a.command_rate <= 200.0, a.command_rate
     assert 0.0 < a.movej_vel <= 0.05, "first-day Movej speed must be in (0, 0.05]"
+    assert not a.nudge_via_movej or a.test_nudge, (
+        "--nudge-via-movej requires --test-nudge")
 
     keep = [i for i, n in enumerate(names_all)
             if a.arms == "both" or n.startswith(a.arms)]
@@ -306,24 +311,70 @@ def main():
                 f"fixed {rate:.1f} Hz")
 
     pv = np.abs(np.diff(timeline, axis=0)).max() * rate
+    interface = (f"{CONTROL_SERVICE} (Movej at {a.movej_vel*100:.1f}% speed)"
+                 if a.nudge_via_movej else a.topic or "(no topic)")
     print(f"\nplan : {desc}\n"
-          f"topic: {a.topic or '(DRY RUN - no topic)'}\n"
-          f"peak commanded velocity: {pv:.2f} rad/s\n"
+          f"interface: {interface}\n"
+          f"peak transparent velocity: {pv:.2f} rad/s\n"
           f"abort: Ctrl-C anytime; hardware E-stop always wins")
-    if not a.topic:
+    if not a.nudge_via_movej and not a.topic:
         sys.exit("need --topic (find it with --discover) or --dry-run")
 
-    pub = node.create_publisher(JointState, a.topic, 10)
-    t_match = time.monotonic()
-    while pub.get_subscription_count() == 0:
-        rclpy.spin_once(node, timeout_sec=0.1)
-        assert time.monotonic() - t_match <= 3.0, (
-            f"no subscriber matched {a.topic} within 3 s")
-    print(f"command subscriber matched ({pub.get_subscription_count()})")
+    pub = None
+    if not a.nudge_via_movej:
+        pub = node.create_publisher(JointState, a.topic, 10)
+        t_match = time.monotonic()
+        while pub.get_subscription_count() == 0:
+            rclpy.spin_once(node, timeout_sec=0.1)
+            assert time.monotonic() - t_match <= 3.0, (
+                f"no subscriber matched {a.topic} within 3 s")
+        print(f"command subscriber matched ({pub.get_subscription_count()})")
 
     if not a.yes:
         if input("type 'go' to start: ").strip() != "go":
             sys.exit("aborted by user")
+
+    # Diagnostic gate for separating ordinary arm control from the high-rate
+    # transparent path.  Both calls use the documented 20-joint Movej request,
+    # first to the small offset and then back to the pose measured above.
+    if a.nudge_via_movej:
+        assert a.test_nudge
+
+        def wait_for_pose(target, label, timeout=15.0):
+            deadline = time.monotonic() + timeout
+            while True:
+                rclpy.spin_once(node, timeout_sec=0.1)
+                err = np.abs(meas["q"] - target).max()
+                if err <= a.track_tol:
+                    print(f"[{label}] max pose error: {err:.3f} rad")
+                    return meas["q"].copy()
+                assert time.monotonic() <= deadline, (
+                    f"[{label}] did not reach target within {timeout:.0f}s; "
+                    f"max error {err:.3f} rad")
+
+        print(f"[movej-nudge] moving to {a.test_nudge} offset ...")
+        detail = movej(node, names, q_up, a.movej_vel)
+        print(f"[movej-nudge] outbound service: {detail}")
+        q_reached = wait_for_pose(q_up, "movej-nudge outbound")
+        if a.nudge_delta > 0.0:
+            excursion = q_reached[j] - q_init[j]
+        else:
+            excursion = q_init[j] - q_reached[j]
+        assert excursion >= abs(a.nudge_delta) - a.track_tol, (
+            f"measured {a.test_nudge} excursion {excursion:.3f} rad is smaller "
+            f"than required {abs(a.nudge_delta) - a.track_tol:.3f} rad")
+
+        print("[movej-nudge] returning to measured initial pose ...")
+        detail = movej(node, names, q_init, a.movej_vel)
+        print(f"[movej-nudge] return service: {detail}")
+        q_returned = wait_for_pose(q_init, "movej-nudge return")
+        final_err = np.abs(q_returned - q_init).max()
+        print(f"measured {a.test_nudge} excursion: {excursion:.3f} rad; "
+              f"final-pose error: {final_err:.3f} rad")
+        print("Movej nudge finished cleanly; robot returned to its initial pose.")
+        node.destroy_node()
+        rclpy.shutdown()
+        return
 
     # ---- optional: reach the first frame with the slow one-shot service -----
     # Vendor doc p.12 note ii. Park pose -> gesture start is the single largest
@@ -376,6 +427,7 @@ def main():
         msg.header.stamp = node.get_clock().now().to_msg()
         msg.name = names
         msg.position = [float(v) for v in timeline[i]]
+        assert pub is not None
         pub.publish(msg)
         if i % int(5 * rate) == 0:
             node.get_logger().info(f"t={i/rate:6.1f}s / {len(timeline)/rate:.1f}s "
