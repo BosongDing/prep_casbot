@@ -29,6 +29,9 @@ gate is Step 5 of [docs/OPERATING_GUIDE.md](docs/OPERATING_GUIDE.md): verify all
 - `audio/safe_sync` and `package_manifest.json` provide a common duration and a
   safe `--speed <= 1.0` for every condition in a trio.
 - `previews/exact_robot_paths` shows the exact prepared path stored in each NPZ.
+- `previews/original_126d_skeleton` shows the original generated 43-joint
+  skeletons before W1 retargeting, with articulated fingers and the matching
+  waveform.
 - `previews_long/safe_robot_timing` shows the long exact paths resampled to a
   shared safe duration with the matching same-audio WAV.
 
@@ -110,13 +113,26 @@ audio/reference_5s/      original five-second 16 kHz WAV per trio
 audio/safe_sync/         safety-matched shared 16 kHz WAV per trio
 audio_long/              reference and safe-sync WAVs for long trios
 previews/original_timing three-panel videos with the same audio
+previews/original_126d_skeleton/ source 126-D skeleton trios with audio
 previews/exact_robot_paths/ exact prepared trajectory previews
 previews_long/           original, exact, and safe robot timing videos
+original_126d_sources/   selected generated 126-D streams and canonical mean
 audits/                  collision provenance, metrics, hashes, voice ranking
 docs/                    full operating/background/vendor documentation
+render_126d_skeleton.py  fail-fast source-skeleton renderer
 stream_ros2.py           laptop dry-run + ROS2 hardware streamer
 validate_package.py      standalone assertion-based package test
 ```
+
+Re-render all five source-skeleton comparisons at the five-second recording
+duration with:
+
+```bash
+python3 render_126d_skeleton.py --all --seconds 5
+```
+
+The native generations are 15 fps. The renderer linearly interpolates them to
+30 fps for viewing; it does not change the generated poses or condition labels.
 
 The copied `docs/MOTIONS.md` is an earlier planning record and says the
 setting-conditioned files did not yet exist. That historical statement is now

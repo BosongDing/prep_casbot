@@ -34,6 +34,10 @@ def main():
     assert manifest["conditions"] == ["presentation", "tabletop", "casual"]
     assert manifest["command_rate_hz"] == 100.0
 
+    mean_path = ROOT / "original_126d_sources/ted_expressive_mean_dir_vec.npy"
+    mean = np.load(mean_path, allow_pickle=False)
+    assert mean.shape == (126,) and np.isfinite(mean).all()
+
     paths = sorted((ROOT / "motions").glob("*/*.npz"))
     expected_paths = {
         ROOT / "motions" / set_name / f"{condition}.npz"
@@ -43,7 +47,9 @@ def main():
     assert set(paths) == expected_paths
     short_relative_paths = {str(path.relative_to(ROOT)) for path in paths}
 
-    report = {"motion_count": len(paths), "sets": {}, "files": {}}
+    report = {"motion_count": len(paths), "sets": {}, "files": {
+        str(mean_path.relative_to(ROOT)): sha256(mean_path)
+    }}
     for set_name, set_meta in manifest["sets"].items():
         set_dir = ROOT / "motions" / set_name
         assert {path.stem for path in set_dir.glob("*.npz")} == CONDITIONS
@@ -65,6 +71,23 @@ def main():
         overview = ROOT / "previews/original_timing" / f"{set_name}_same_audio.mp4"
         assert overview.is_file() and overview.stat().st_size > 0
         report["files"][str(overview.relative_to(ROOT))] = sha256(overview)
+
+        generated_source = ROOT / "original_126d_sources" / f"{set_name}.npz"
+        generated = np.load(generated_source, allow_pickle=False)
+        assert set(generated.files) >= {
+            "presentation", "seated_screen", "standing_studio", "audio", "sr", "fps"
+        }
+        assert int(generated["sr"]) == 16000
+        assert int(generated["fps"]) == 15
+        assert generated["audio"].ndim == 1 and len(generated["audio"]) >= 80000
+        for key in ("presentation", "seated_screen", "standing_studio"):
+            vectors = generated[key]
+            assert vectors.ndim == 2 and vectors.shape[0] >= 75 and vectors.shape[1] == 126
+            assert np.isfinite(vectors).all()
+        skeleton_preview = ROOT / "previews/original_126d_skeleton" / f"{set_name}.mp4"
+        assert skeleton_preview.is_file() and skeleton_preview.stat().st_size > 0
+        report["files"][str(generated_source.relative_to(ROOT))] = sha256(generated_source)
+        report["files"][str(skeleton_preview.relative_to(ROOT))] = sha256(skeleton_preview)
 
         set_report = {}
         for condition in sorted(CONDITIONS):
