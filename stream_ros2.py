@@ -507,7 +507,7 @@ def main():
                   f"final-pose error: {final_err:.3f} rad")
         print("finished cleanly, robot returned to its initial pose.")
     elif aborted[0]:
-        print(f"stopped: {aborted[0]}")
+        raise RuntimeError(f"stopped: {aborted[0]}")
     node.destroy_node()
     rclpy.shutdown()
 
