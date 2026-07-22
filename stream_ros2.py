@@ -454,9 +454,15 @@ def main():
         if age > a.feedback_timeout:
             aborted[0] = f"feedback silent for {age:.2f}s"
         elif i > 0 and meas["q"] is not None:
-            err = np.abs(meas["q"] - timeline[min(i - 1, len(timeline) - 1)]).max()
+            target = timeline[min(i - 1, len(timeline) - 1)]
+            error = np.abs(meas["q"] - target)
+            worst = int(np.argmax(error))
+            err = float(error[worst])
             if err > a.track_tol:
-                aborted[0] = f"tracking error {err:.2f} rad > {a.track_tol}"
+                aborted[0] = (
+                    f"tracking error {err:.3f} rad > {a.track_tol:.3f} on "
+                    f"{COMMAND_JOINTS[worst]}: measured={meas['q'][worst]:+.3f}, "
+                    f"commanded={target[worst]:+.3f}")
         if aborted[0]:
             node.get_logger().error(f"ABORT: {aborted[0]} - stopped publishing")
             return
