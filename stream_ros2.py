@@ -159,6 +159,9 @@ def main():
     ap.add_argument("--topic", default=COMMAND_TOPIC,
                     help=f"command topic (sensor_msgs/JointState). Default {COMMAND_TOPIC} "
                          "per vendor dev doc V2.0 p.13. Use --discover to double-check.")
+    ap.add_argument("--split-arm-topics", action="store_true",
+                    help="publish left/right trajectories directly to arm_0/arm_1; "
+                         "use when the W1 unified topic does not forward commands")
     ap.add_argument("--state-topic", default=FEEDBACK_TOPIC)
     ap.add_argument("--enable-feedback", action="store_true",
                     help="call Set_realtimePush_enable first (doc p.11-12). Joint reporting "
@@ -227,6 +230,8 @@ def main():
     assert 0.0 < a.movej_vel <= 0.05, "first-day Movej speed must be in (0, 0.05]"
     assert not a.nudge_via_movej or a.test_nudge, (
         "--nudge-via-movej requires --test-nudge")
+    assert not a.split_arm_topics or a.arms == "both", (
+        "--split-arm-topics requires --arms both")
 
     keep = [i for i, n in enumerate(names_all)
             if a.arms == "both" or n.startswith(a.arms)]
@@ -286,17 +291,27 @@ def main():
     q_cmd_traj[:, active_columns] = q_traj
     names = list(COMMAND_JOINTS)
 
-    if a.topic == LEFT_ARM_COMMAND_TOPIC:
+    if a.split_arm_topics:
+        group_specs = [
+            (LEFT_ARM_COMMAND_TOPIC,
+             [f"left_joint{i}" for i in range(1, 8)]),
+            (RIGHT_ARM_COMMAND_TOPIC,
+             [f"right_joint{i}" for i in range(1, 8)]),
+        ]
+    elif a.topic == LEFT_ARM_COMMAND_TOPIC:
         assert a.arms == "left", (
             f"{LEFT_ARM_COMMAND_TOPIC} requires --arms left")
-        publish_names = [f"left_joint{i}" for i in range(1, 8)]
+        group_specs = [(a.topic, [f"left_joint{i}" for i in range(1, 8)])]
     elif a.topic == RIGHT_ARM_COMMAND_TOPIC:
         assert a.arms == "right", (
             f"{RIGHT_ARM_COMMAND_TOPIC} requires --arms right")
-        publish_names = [f"right_joint{i}" for i in range(1, 8)]
+        group_specs = [(a.topic, [f"right_joint{i}" for i in range(1, 8)])]
     else:
-        publish_names = names
-    publish_columns = [command_index[n] for n in publish_names]
+        group_specs = [(a.topic, names)]
+    publish_groups = [
+        (topic, group_names, [command_index[n] for n in group_names])
+        for topic, group_names in group_specs
+    ]
 
     # ---- build the full command timeline --------------------------------
     n_ramp = max(2, int(a.ramp * rate))
@@ -325,28 +340,35 @@ def main():
                 f"fixed {rate:.1f} Hz")
 
     pv = np.abs(np.diff(timeline, axis=0)).max() * rate
-    interface = (f"{CONTROL_SERVICE} (Movej at {a.movej_vel*100:.1f}% speed)"
-                 if a.nudge_via_movej else a.topic or "(no topic)")
+    if a.nudge_via_movej:
+        interface = f"{CONTROL_SERVICE} (Movej at {a.movej_vel*100:.1f}% speed)"
+    elif a.split_arm_topics:
+        interface = f"{LEFT_ARM_COMMAND_TOPIC} + {RIGHT_ARM_COMMAND_TOPIC}"
+    else:
+        interface = a.topic or "(no topic)"
     abort_note = ("hardware E-stop stops Movej; Ctrl-C may only stop this client"
                   if a.nudge_via_movej else
                   "Ctrl-C stops publishing; hardware E-stop always wins")
     print(f"\nplan : {desc}\n"
           f"interface: {interface}\n"
-          f"published joints: {len(publish_names)}\n"
+          f"published joints: {sum(len(g[1]) for g in publish_groups)}\n"
           f"peak transparent velocity: {pv:.2f} rad/s\n"
           f"abort: {abort_note}")
     if not a.nudge_via_movej and not a.topic:
         sys.exit("need --topic (find it with --discover) or --dry-run")
 
-    pub = None
+    publishers = []
     if not a.nudge_via_movej:
-        pub = node.create_publisher(JointState, a.topic, 10)
-        t_match = time.monotonic()
-        while pub.get_subscription_count() == 0:
-            rclpy.spin_once(node, timeout_sec=0.1)
-            assert time.monotonic() - t_match <= 3.0, (
-                f"no subscriber matched {a.topic} within 3 s")
-        print(f"command subscriber matched ({pub.get_subscription_count()})")
+        for topic, group_names, columns in publish_groups:
+            pub = node.create_publisher(JointState, topic, 10)
+            t_match = time.monotonic()
+            while pub.get_subscription_count() == 0:
+                rclpy.spin_once(node, timeout_sec=0.1)
+                assert time.monotonic() - t_match <= 3.0, (
+                    f"no subscriber matched {topic} within 3 s")
+            print(f"command subscriber matched on {topic} "
+                  f"({pub.get_subscription_count()})")
+            publishers.append((pub, group_names, columns))
 
     if not a.yes:
         if input("type 'go' to start: ").strip() != "go":
@@ -441,12 +463,14 @@ def main():
         if i >= len(timeline):
             aborted[0] = "done"
             return
-        msg = JointState()
-        msg.header.stamp = node.get_clock().now().to_msg()
-        msg.name = publish_names
-        msg.position = [float(v) for v in timeline[i, publish_columns]]
-        assert pub is not None
-        pub.publish(msg)
+        stamp = node.get_clock().now().to_msg()
+        assert publishers
+        for pub, group_names, columns in publishers:
+            msg = JointState()
+            msg.header.stamp = stamp
+            msg.name = group_names
+            msg.position = [float(v) for v in timeline[i, columns]]
+            pub.publish(msg)
         if i % int(5 * rate) == 0:
             node.get_logger().info(f"t={i/rate:6.1f}s / {len(timeline)/rate:.1f}s "
                                    f"(fb age {age*1000:.0f} ms)")
